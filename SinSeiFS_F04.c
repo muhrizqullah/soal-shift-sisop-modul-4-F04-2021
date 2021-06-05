@@ -9,8 +9,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-static  const  char *dirpath = "/home/misdinar/Downloads";
-static const char *logpath = "/home/misdinar/SinSeiFS.log";
+static  const  char *dirpath = "/home/gretzy/Downloads";
+static const char *logpath = "/home/gretzy/SinSeiFS.log";
 
 char* chyper(char namaFile[]) {
     char namaTemp[1024] ;
@@ -273,8 +273,15 @@ static int xmp_truncate(const char *path, off_t size)
 static int xmp_rmdir(const char *path) {
 	int res;
 	char fpath[1000];
+    if (strcmp(path, "/") == 0)
+    {
+        path = dirpath;
+        sprintf(fpath, "%s", path);
+    }
+    else{
+		sprintf(fpath, "%s%s", dirpath, path);
+	}
 	res = rmdir(fpath);
-	sprintf(fpath, "%s%s", dirpath, path);
 	char logbuffer[1000];
 	sprintf(logbuffer,"%s::%s","RMDIR",path);
 	printWarning(logbuffer);
@@ -317,9 +324,15 @@ static int xmp_open(const char *path, struct fuse_file_info *fi)
 
 static int xmp_rename(const char *from, const char *to)
 {
-	int res;char logbuffer[1000];
+	int res;
+    printf("\n\nDEBUG rename\n\n");
+    char ffrom[1000];
+	char fto[1000];
+    char logbuffer[1000];
+	sprintf(ffrom, "%s%s",dirpath, from);
+	sprintf(fto, "%s%s",dirpath, to);
 
-	res = rename(from, to);
+	res = rename(ffrom, fto);
 	sprintf(logbuffer,"%s::%s::%s","RENAME",from, to);
 	printInfo(logbuffer);
 	if (res == -1)
