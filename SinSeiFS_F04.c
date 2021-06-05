@@ -8,24 +8,82 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#define MKDIR_STATUS 1
+#define MKNOD_STATUS 2
+#define RMDIR_STATUS 3
+#define REMOVE_STATUS 4
+#define READDR_STATUS 5
+#define RENAME_STATUS 6
+#define TRUNCATE_STATUS 7
+#define WRITE_STATUS 8
+#define READ_STATUS 9
+#define OPEN_STATUS 10
 
 static  const  char *dirpath = "/home/misdinar/Downloads";
 static const char *logpath = "/home/misdinar/SinSeiFS.log";
+static int lastCommand = 0;
 
-char* chyper(char namaFile[]) {
-    char namaTemp[1024] ;
-    strcpy(namaTemp, namaFile) ;
-    int i ;
-    for(i = 0 ; i < strlen(namaTemp) ; i++) {
-        if (namaTemp[i] >= 'A' && namaTemp[i] <= 'Z') {
-            namaTemp[i] = 'Z' - (namaTemp[i] - 'A') ;
+void encription1WithLength(char* enc, int length) {
+	if(strcmp(enc, ".") == 0 || strcmp(enc, "..") == 0)return;
+	for(int i = length; i >= 0; i--){
+		if(enc[i]=='/')break;
+		if(enc[i]=='.'){
+			length = i;
+			break;
+		}
+	}
+	int start = 0;
+	for(int i = 0; i < length; i++){
+		if(enc[i] == '/'){
+			start = i+1;
+			break;
+		}
+	}
+    for ( int i = start; i < length; i++) {
+		if(enc[i]=='/')continue;
+        if (enc[i] >= 'A' && enc[i] <= 'Z') {
+            enc[i] = 'Z' - (enc[i] - 'A') ;
         }
-        else if (namaTemp[i] >= 'a' && namaTemp[i] <= 'z') {
-            namaTemp[i] = 'z' - (namaTemp[i] - 'a') ;
+        else if (enc[i] >= 'a' && enc[i] <= 'z') {
+            enc[i] = 'z' - (enc[i] - 'a') ;
         }
     }
-    char* res = namaTemp ;
-    return res ;
+}
+
+void decription1WithLength(char * enc, int length){
+	if(strcmp(enc, ".") == 0 || strcmp(enc, "..") == 0)return;
+	if(strstr(enc, "/") == NULL)return;
+	for(int i = length; i >= 0; i--){
+		if(enc[i]=='/')break;
+		if(enc[i]=='.'){
+			length = i;
+			break;
+		}
+	}
+	int start = length;
+	for(int i = 0; i < length; i++){
+		if(enc[i] == '/'){
+			start = i+1;
+			break;
+		}
+	}
+    for ( int i = start; i < length; i++) {
+		if(enc[i]=='/')continue;
+        if (enc[i] >= 'A' && enc[i] <= 'Z') {
+            enc[i] = 'Z' - (enc[i] - 'A') ;
+        }
+        else if (enc[i] >= 'a' && enc[i] <= 'z') {
+            enc[i] = 'z' - (enc[i] - 'a') ;
+        }
+    }
+}
+
+void encription1(char* enc) {
+	encription1WithLength(enc, strlen(enc));
+}
+
+void decription1(char* enc){
+	decription1WithLength(enc, strlen(enc));
 }
 
 void printlog(char * args){
@@ -63,7 +121,13 @@ static int xmp_getattr(const char *path, struct stat *stbuf)
 {
     int res;
     char fpath[1000];
+    char * enc1Ptr = strstr(path, "AtoZ_");
+	if(lastCommand == MKNOD_STATUS || lastCommand == MKDIR_STATUS){
 
+	}else{
+		if(enc1Ptr != NULL)
+			decription1(enc1Ptr);
+	}
     sprintf(fpath, "%s%s", dirpath, path);
 
     res = lstat(fpath, stbuf);
@@ -78,6 +142,10 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_
 {
     char fpath[1000];
 	char logbuffer[1000];
+    char *enc1Ptr = strstr(path, "AtoZ_");
+	if(enc1Ptr != NULL)
+		decription1(enc1Ptr);
+
     if (strcmp(path, "/") == 0)
     {
         path = dirpath;
@@ -109,18 +177,37 @@ static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_
 
         st.st_ino = de->d_ino;
         st.st_mode = de->d_type << 12;
+        if(enc1Ptr != NULL) encription1(de->d_name);
         res = (filler(buf, de->d_name, &st, 0));
 
         if (res != 0)
             break;
     }
     closedir(dp);
+    lastCommand = READDR_STATUS;
     return 0;
 }
 
 static int xmp_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
     char fpath[1000];char logbuffer[1000];
+
+    char * enc1Ptr = strstr(path,"AtoZ_");
+	if(lastCommand == MKNOD_STATUS){
+		if(enc1Ptr != NULL){
+			int length = strlen(enc1Ptr);
+			for(int i = length; i >= 0; i--){
+				if(enc1Ptr[i] == '/'){
+					length = i;
+					break;
+				}
+			}
+			decription1WithLength(enc1Ptr, length);
+		}
+	}else{
+		if(enc1Ptr != NULL)
+			decription1(enc1Ptr);
+	}
 	
     if (strcmp(path, "/") == 0)
     {
@@ -158,6 +245,7 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset, stru
 static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
 {
     int res;
+    lastCommand = MKNOD_STATUS;
     char fpath[1000]; char logbuffer[1000];
     if (strcmp(path, "/") == 0)
     {
@@ -191,6 +279,24 @@ static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
 static int xmp_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
     char fpath[1000]; char logbuffer[1000];
+
+    char * enc1Ptr = strstr(path,"AtoZ_");
+	if(lastCommand == MKNOD_STATUS){
+		if(enc1Ptr != NULL){
+			int length = strlen(enc1Ptr);
+			for(int i = length; i >= 0; i--){
+				if(enc1Ptr[i] == '/'){
+					length = i;
+					break;
+				}
+			}
+			decription1WithLength(enc1Ptr, length);
+		}
+	}else{
+		if(enc1Ptr != NULL)
+			decription1(enc1Ptr);
+	}
+
     if (strcmp(path, "/") == 0)
     {
         path = dirpath;
@@ -225,6 +331,10 @@ static int xmp_unlink(const char *path)
 {
     int res;
 
+    char * enc1Ptr = strstr(path,"AtoZ_");
+	if(enc1Ptr != NULL)
+		decription1(enc1Ptr);
+
     char fpath[1000];char logbuffer[1000];
     if (strcmp(path, "/") == 0)
     {
@@ -241,6 +351,8 @@ static int xmp_unlink(const char *path)
     res = unlink(fpath);
     if (res == -1)
         return -errno;
+    
+    lastCommand = REMOVE_STATUS;
 
     return 0;
 }
@@ -248,6 +360,10 @@ static int xmp_unlink(const char *path)
 static int xmp_truncate(const char *path, off_t size)
 {
     int res;
+    lastCommand = TRUNCATE_STATUS;
+    char * enc1Ptr = strstr(path,"AtoZ_");
+	if(enc1Ptr != NULL)
+		decription1(enc1Ptr);
 
     char fpath[1000]; char logbuffer[1000];
     if (strcmp(path, "/") == 0)
@@ -273,6 +389,10 @@ static int xmp_truncate(const char *path, off_t size)
 static int xmp_rmdir(const char *path) {
 	int res;
 	char fpath[1000];
+    lastCommand = RMDIR_STATUS;
+    char * enc1Ptr = strstr(path,"AtoZ_");
+	if(enc1Ptr != NULL)
+		decription1(enc1Ptr);
 	res = rmdir(fpath);
 	sprintf(fpath, "%s%s", dirpath, path);
 	char logbuffer[1000];
@@ -287,6 +407,7 @@ static int xmp_rmdir(const char *path) {
 static int xmp_mkdir(const char *path, mode_t mode)
 {
 	int res; char logbuffer[1000];
+    lastCommand = MKDIR_STATUS;
 	char fpath[1000];
 	if(strcmp(path,"/") == 0){
         path=dirpath;
@@ -306,6 +427,22 @@ static int xmp_mkdir(const char *path, mode_t mode)
 static int xmp_open(const char *path, struct fuse_file_info *fi)
 {
 	int res;
+    char * enc1Ptr = strstr(path,"AtoZ_");
+    if(lastCommand == MKNOD_STATUS){
+		if(enc1Ptr != NULL){
+			int length = strlen(enc1Ptr);
+			for(int i = length; i >= 0; i--){
+				if(enc1Ptr[i] == '/'){
+					length = i;
+					break;
+				}
+			}
+			decription1WithLength(enc1Ptr, length);
+		}
+	}else{
+		if(enc1Ptr != NULL)
+			decription1(enc1Ptr);
+	}
 
 	res = open(path, fi->flags);
 	if (res == -1)
@@ -318,6 +455,7 @@ static int xmp_open(const char *path, struct fuse_file_info *fi)
 static int xmp_rename(const char *from, const char *to)
 {
 	int res;char logbuffer[1000];
+    lastCommand = RENAME_STATUS;
 
 	res = rename(from, to);
 	sprintf(logbuffer,"%s::%s::%s","RENAME",from, to);
