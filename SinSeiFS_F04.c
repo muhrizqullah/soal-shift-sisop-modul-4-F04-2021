@@ -460,6 +460,7 @@ static int xmp_rmdir(const char *path)
 static int xmp_open(const char *path, struct fuse_file_info *fi)
 {
     int res;
+    char fpath[1000];
     char *flagAtoz = strstr(path, "AtoZ_");
     if (status == MKNOD_STATUS && flagAtoz != NULL)
         {
@@ -477,8 +478,10 @@ static int xmp_open(const char *path, struct fuse_file_info *fi)
     }
     else if (flagAtoz != NULL)
             decrypt(flagAtoz, strlen(flagAtoz));
+    
+    sprintf(fpath, "%s%s", dirpath, path);
 
-    res = open(path, fi->flags);
+    res = open(fpath, fi->flags);
     if (res == -1)
         return -errno;
 
