@@ -101,8 +101,17 @@ void decrypt(char *enc, int length)
     }
 }
 ```
-* enc[i] = 'Z' - (enc[i] - 'A') dan enc[i] = 'z' - (enc[i] - 'a'); berguna untuk meng-chyper teks sehingga akan terencrypt secara terbalik , misal A menjadi Z, B menjadi Y, a menjadi z, b menjadi y, dan seterusnya.
-* if (enc[i] == '/')continue; untuk mengabaikan penamaan file ‘/’ sesuai yang di mention di soal.
+* ```enc[i] = 'Z' - (enc[i] - 'A') dan enc[i] = 'z' - (enc[i] - 'a');``` berguna untuk meng-chyper teks sehingga akan terencrypt secara terbalik , misal A menjadi Z, B menjadi Y, a menjadi z, b menjadi y, dan seterusnya.
+* ```if (enc[i] == '/') continue;``` untuk mengabaikan penamaan file ‘/’ sesuai yang di mention di soal.
+*  ```void encrypt(char* enc, int length)``` untuk mengenkripsi nama file / direktori. Misalkan apabila mkdir seperti direktori/AtoZ_test, maka yg di enkripsi hanya string AtoZ_test saja, direktori/ tidak akan terenkripsi. Begitu juga dengan ekstensi dari file. Untuk memenuhi persyartan diatas menggunakan
+
+* ```void decrypt(char* enc, int length)``` untuk mengenkripsi nama file / direktori. Misalkan apabila mkdir direktori/AtoZ_test, maka yg di enkripsi hanya string AtoZ_test saja, direktori/ tidak akan di enkripsi. Begitu juga dengan ekstensi dari file. Untuk memenuhi persyartan diatas menggunakan
+
+### Screenshot
+
+### Kendala
+Sempat tidak bisa membaca isi dari sebuah file, ternyata karena salah memberikan variabel
+
 
 
 
