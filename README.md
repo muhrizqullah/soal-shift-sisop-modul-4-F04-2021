@@ -101,7 +101,8 @@ void decrypt(char *enc, int length)
     }
 }
 ```
-
+* enc[i] = 'Z' - (enc[i] - 'A') dan enc[i] = 'z' - (enc[i] - 'a'); berguna untuk meng-chyper teks sehingga akan terencrypt secara terbalik , misal A menjadi Z, B menjadi Y, a menjadi z, b menjadi y, dan seterusnya.
+* if (enc[i] == '/')continue; untuk mengabaikan penamaan file ‘/’ sesuai yang di mention di soal.
 
 
 
