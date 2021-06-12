@@ -108,6 +108,15 @@ void decrypt(char *enc, int length)
 * ```void decrypt(char* enc, int length)``` untuk mengenkripsi nama file / direktori. Misalkan apabila mkdir direktori/AtoZ_test, maka yg di enkripsi hanya string AtoZ_test saja, direktori/ tidak akan di enkripsi. Begitu juga dengan ekstensi dari file. Untuk memenuhi persyartan diatas menggunakan
 
 ### Screenshot
+* Direktori ter-mount
+<img alt="soal1a" src="Foto/mount.JPG">
+* Direktori sumber (Downloads)
+<img alt="soal1a" src="Foto/download.JPG">
+* Isi Direktori yang terenkripsi (AtoZ_hahahah)
+<img alt="soal1b" src="Foto/AtoZ1.JPG">
+<img alt="soal1c" src="Foto/AtoZ2.JPG">
+* File yang terenkripsi dapat dibuka
+<img alt="soal1d" src="Foto/AtoZ3.JPG">
 
 ### Kendala
 Sempat tidak bisa membaca isi dari sebuah file, ternyata karena salah memberikan variabel
