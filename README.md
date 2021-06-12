@@ -185,5 +185,7 @@ Format untuk logging yaitu: [Level]::[dd][mm][yyyy]-[HH]:[MM]:[SS]:[CMD]::[DESC 
 
 Seperti yang sudah dibahas pada soal sebelumnya kita diminta untuk membuat log sesuai format yang ada.
 #### Kendala
-Ada beberapa fungsi `xmp` yang harus mencantumkan 2 file, Seperti `RENAME`.
+Tidak ada kendala.
 #### Screenshot
+* Isi Log
+<img alt="soal4" src="download/AtoZ4.JPG">
