@@ -118,11 +118,63 @@ Sempat tidak bisa membaca isi dari sebuah file, ternyata karena salah memberikan
 ## Soal 4
 ### Soal 4a
 Log system yang akan terbentuk bernama “SinSeiFS.log” pada direktori home pengguna (/home/[user]/SinSeiFS.log). Log system ini akan menyimpan daftar perintah system call yang telah dijalankan pada filesystem.
+```c
+void printlog(char *args)
+{
+    FILE *log;
+	// dibuka filenya
+    log = fopen(logpath, "a");
+	// masukin log ke file yg di tuju
+    fprintf(log, "%s\n", args);
+	// ditutup
+    fclose(log);
+}
+```
+Pada soal ini kita diminta untuk membuat file `.log` untuk menyimpan daftar perintah system call yang telah dijalankan pada *filesystem*. File akan disimpan pada direktori home user. FUngsi ini berfungsi untuk membuat/membuka file dan juga untuk menuliskan informasi yang diminta.
 ### Soal 4b
 Karena Sin dan Sei suka kerapian maka log yang dibuat akan dibagi menjadi dua level, yaitu INFO dan WARNING.
+
+Pada soal ini kita diminta untuk membagi 2 jenis tipe log.
 ### Soal 4c
 Untuk log level WARNING, digunakan untuk mencatat syscall rmdir dan unlink.
+```c
+void printWarning(char *args)
+{
+    char message[10000], timestamp[40];
+    char buffer[10000];
+    memset(buffer, 0, sizeof(buffer));
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    strftime(buffer, sizeof(buffer), "%d%m%Y-%X", &tm);
+    strcpy(timestamp, buffer);
+    sprintf(message, "%s::%s::%s", "WARNING", timestamp, args);
+    printlog(message);
+}
+```
+Pada soal ini kita membuat fungsi `printWarning()` untuk menysun string sesuai format yang diminta dari jenis log, timestamp, jenis fungsi, dan file atau direktorinya. Fungsi ini menerima 1 parameter yaitu jenis fungsi yang digunakan pada *filesystem* dan juga file atau direktori yang digunakan.
 ### Soal 4d
 Sisanya, akan dicatat pada level INFO.
+```c
+void printInfo(char *args)
+{
+    char message[10000], timestamp[40];
+    char buffer[10000];
+    memset(buffer, 0, sizeof(buffer));
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+	// mengambil tanggal dan jam
+    strftime(buffer, sizeof(buffer), "%d%m%Y-%X", &tm);
+    strcpy(timestamp, buffer);
+	// membuat pesan log sesua format soal
+    sprintf(message, "%s::%s::%s", "INFO", timestamp, args);
+    printlog(message);
+}
+```
+Sama dengan soal 4c fungsi ini berfungsi untuk menyusun string yang akan ditulis ke dalam file SinSeiFS.log. Hanya saja ini bertipe INFO.
 ### Soal 4e
 Format untuk logging yaitu: [Level]::[dd][mm][yyyy]-[HH]:[MM]:[SS]:[CMD]::[DESC :: DESC]
+
+Seperti yang sudah dibahas pada soal sebelumnya kita diminta untuk membuat log sesuai format yang ada.
+#### Kendala
+Ada beberapa fungsi `xmp` yang harus mencantumkan 2 file, Seperti `RENAME`.
+#### Screenshot
