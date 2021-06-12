@@ -18,6 +18,92 @@ Apabila direktori yang terenkripsi di-rename menjadi tidak ter-encode, maka isi 
 Setiap pembuatan direktori ter-encode (mkdir atau rename) akan tercatat ke sebuah log. Format : /home/[USER]/Downloads/[Nama Direktori] → /home/[USER]/Downloads/AtoZ_[Nama Direktori]
 ### Soal 1e
 Metode encode pada suatu direktori juga berlaku terhadap direktori yang ada di dalamnya.(rekursif)
+```bash
+void encrypt(char *enc, int length)
+{
+    if (strcmp(enc, ".") == 0 || strcmp(enc, "..") == 0)
+        return;
+    for (int i = length; i >= 0; i--)
+    {
+        if (enc[i] == '/')
+            break;
+        if (enc[i] == '.')
+        {
+            length = i;
+            break;
+        }
+    }
+    int start = 0;
+    for (int i = 0; i < length; i++)
+    {
+        if (enc[i] == '/')
+        {
+            start = i + 1;
+            break;
+        }
+    }
+    for (int i = start; i < length; i++)
+    {
+        if (enc[i] == '/')
+            continue;
+        if (enc[i] >= 'A' && enc[i] <= 'Z')
+        {
+            enc[i] = 'Z' - (enc[i] - 'A');
+        }
+        else if (enc[i] >= 'a' && enc[i] <= 'z')
+        {
+            enc[i] = 'z' - (enc[i] - 'a');
+        }
+    }
+}
+
+void decrypt(char *enc, int length)
+{
+	//mencari posisi yg menjadi awal dari nama file/dir
+	//AtoZ_sisop/haha.txt
+    if (strcmp(enc, ".") == 0 || strcmp(enc, "..") == 0)
+        return;
+    if (strstr(enc, "/") == NULL)
+        return;
+    for (int i = length; i >= 0; i--)
+    {
+        if (enc[i] == '/')
+            break;
+        if (enc[i] == '.')
+        {
+            length = i;
+            break;
+        }
+    }
+	
+    int start = length;
+    for (int i = 0; i < length; i++)
+    {
+        if (enc[i] == '/')
+        {
+            start = i + 1;
+            break;
+        }
+    }
+	//meng-chyper
+    for (int i = start; i < length; i++)
+    {
+        if (enc[i] == '/')
+            continue;
+        if (enc[i] >= 'A' && enc[i] <= 'Z')
+        {
+            enc[i] = 'Z' - (enc[i] - 'A');
+        }
+        else if (enc[i] >= 'a' && enc[i] <= 'z')
+        {
+            enc[i] = 'z' - (enc[i] - 'a');
+        }
+    }
+}
+```
+
+
+
 
 ## Soal 4
 ### Soal 4a
