@@ -188,4 +188,4 @@ Seperti yang sudah dibahas pada soal sebelumnya kita diminta untuk membuat log s
 Tidak ada kendala.
 #### Screenshot
 * Isi Log
-<img alt="soal4" src="download/AtoZ4.JPG">
+<img alt="soal4" src="Foto/AtoZ4.JPG">
